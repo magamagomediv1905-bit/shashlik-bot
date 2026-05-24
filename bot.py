@@ -22,6 +22,7 @@ LIST_CAT = 0
 ADD_CAT, ADD_NAME, ADD_PRICE, ADD_WEIGHT, ADD_DESC, ADD_IMG = range(1, 7)
 EDIT_CAT, EDIT_ITEM, EDIT_FIELD, EDIT_VALUE, EDIT_PHOTO = range(7, 12)
 DEL_CAT, DEL_ITEM, DEL_CONFIRM = range(12, 15)
+EDITCAT_CAT, EDITCAT_PHOTO = range(15, 17)
 
 logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -106,6 +107,8 @@ def _gen_js(menu: dict) -> str:
     lines.append("};")
     order_js = json.dumps(order, ensure_ascii=False)
     lines.append(f"const CAT_ORDER = {order_js};")
+    cat_imgs = {slug: cats[slug].get("img", "") for slug in order}
+    lines.append(f"const CAT_IMGS = {json.dumps(cat_imgs, ensure_ascii=False)};")
     return "\n".join(lines)
 
 
@@ -526,6 +529,60 @@ async def del_confirm(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
     return ConversationHandler.END
 
 
+# ── /editcat ────────────────────────────────────────────────────────────────
+async def cmd_editcat(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    if not is_owner(update):
+        await update.message.reply_text("У вас нет доступа")
+        return ConversationHandler.END
+    menu = load_menu()
+    ctx.user_data.clear()
+    ctx.user_data["menu"] = menu
+    await update.message.reply_text(
+        "🖼 *Изменить фото категории*\n\nВыберите категорию:",
+        parse_mode="Markdown",
+        reply_markup=cat_keyboard(menu),
+    )
+    return EDITCAT_CAT
+
+
+async def editcat_select(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    menu = ctx.user_data["menu"]
+    slug = slug_by_name(menu, update.message.text)
+    if not slug:
+        await update.message.reply_text("❌ Не найдена, выберите из списка:")
+        return EDITCAT_CAT
+    ctx.user_data["slug"] = slug
+    cur = menu["categories"][slug].get("img", "") or "нет"
+    await update.message.reply_text(
+        f"Категория: *{update.message.text}*\n"
+        f"Текущее фото: `{cur[:60]}{'...' if len(cur)>60 else ''}`\n\n"
+        "📸 Пришлите новое фото категории:",
+        parse_mode="Markdown",
+        reply_markup=ReplyKeyboardRemove(),
+    )
+    return EDITCAT_PHOTO
+
+
+async def editcat_photo(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    menu = ctx.user_data["menu"]
+    slug = ctx.user_data["slug"]
+    cat  = menu["categories"][slug]
+
+    await update.message.reply_text("⏳ Загружаю фото на GitHub...")
+    img_path = await download_and_upload_photo(update, f"cat_{slug}")
+    cat["img"] = img_path
+
+    await update.message.reply_text("⏳ Обновляю сайт через GitHub API...")
+    save_and_deploy(menu, f"cat photo {cat['name']}")
+    await update.message.reply_text(
+        f"✅ Фото категории *{cat['name']}* обновлено!\n"
+        f"Путь: `{img_path}`\n"
+        "Сайт обновится на GitHub Pages через ~1 мин.",
+        parse_mode="Markdown",
+    )
+    return ConversationHandler.END
+
+
 # ── /cancel ─────────────────────────────────────────────────────────────────
 async def cmd_cancel(update: Update, _ctx: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text("Отменено.", reply_markup=ReplyKeyboardRemove())
@@ -580,6 +637,14 @@ def main() -> None:
             DEL_CAT:     [MessageHandler(filters.TEXT & ~filters.COMMAND, del_cat)],
             DEL_ITEM:    [MessageHandler(filters.TEXT & ~filters.COMMAND, del_item)],
             DEL_CONFIRM: [MessageHandler(filters.TEXT & ~filters.COMMAND, del_confirm)],
+        },
+        fallbacks=[CommandHandler("cancel", cmd_cancel)],
+    ))
+    app.add_handler(ConversationHandler(
+        entry_points=[CommandHandler("editcat", cmd_editcat)],
+        states={
+            EDITCAT_CAT:   [MessageHandler(filters.TEXT & ~filters.COMMAND, editcat_select)],
+            EDITCAT_PHOTO: [MessageHandler(filters.PHOTO, editcat_photo)],
         },
         fallbacks=[CommandHandler("cancel", cmd_cancel)],
     ))
