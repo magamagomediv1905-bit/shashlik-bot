@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Telegram-бот управления меню Шашлык Центр"""
-import json, os, re, subprocess, logging
+import json, os, re, base64, logging, requests
 from typing import Optional
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import (
@@ -9,12 +9,11 @@ from telegram.ext import (
 )
 
 # ── Config ─────────────────────────────────────────────────────────────────
-TOKEN      = "8624425261:AAE-mQuwzQU2lOC_81ScsuK_Ve2hwnwFk6o"
-OWNER_ID   = 8701112729
-REPO_DIR   = os.path.dirname(os.path.abspath(__file__))
-MENU_JSON  = os.path.join(REPO_DIR, "menu.json")
-HTML_FILE  = os.path.join(REPO_DIR, "index.html")
-IMAGES_DIR = os.path.join(REPO_DIR, "images")
+TOKEN        = "8624425261:AAE-mQuwzQU2lOC_81ScsuK_Ve2hwnwFk6o"
+OWNER_ID     = 8701112729
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
+GITHUB_REPO  = "magamagomediv1905-bit/shashlik-centr"
+IMAGES_DIR   = "/tmp/shashlik_images"
 
 os.makedirs(IMAGES_DIR, exist_ok=True)
 
@@ -29,31 +28,62 @@ logging.basicConfig(
     level=logging.INFO,
 )
 
+# ── GitHub API ──────────────────────────────────────────────────────────────
+def _gh_headers() -> dict:
+    return {"Authorization": f"token {GITHUB_TOKEN}", "Accept": "application/vnd.github.v3+json"}
+
+
+def _gh_get(path: str) -> dict:
+    url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{path}"
+    r = requests.get(url, headers=_gh_headers(), timeout=15)
+    r.raise_for_status()
+    return r.json()
+
+
+def _gh_put(path: str, content_bytes: bytes, msg: str, sha: str) -> None:
+    url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{path}"
+    data = {
+        "message": msg,
+        "content": base64.b64encode(content_bytes).decode(),
+        "sha": sha,
+    }
+    r = requests.put(url, headers=_gh_headers(), json=data, timeout=15)
+    r.raise_for_status()
+
+
+def _gh_create(path: str, content_bytes: bytes, msg: str) -> None:
+    url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{path}"
+    data = {
+        "message": msg,
+        "content": base64.b64encode(content_bytes).decode(),
+    }
+    r = requests.put(url, headers=_gh_headers(), json=data, timeout=15)
+    r.raise_for_status()
+
+
 # ── Menu I/O ────────────────────────────────────────────────────────────────
 def load_menu() -> dict:
-    with open(MENU_JSON, encoding="utf-8") as f:
-        return json.load(f)
+    resp = _gh_get("menu.json")
+    raw  = base64.b64decode(resp["content"])
+    return json.loads(raw)
 
 
 def save_and_deploy(menu: dict, commit_msg: str) -> None:
-    with open(MENU_JSON, "w", encoding="utf-8") as f:
-        json.dump(menu, f, ensure_ascii=False, indent=2)
-    _update_html(menu)
-    _git_push(commit_msg)
+    menu_bytes = json.dumps(menu, ensure_ascii=False, indent=2).encode()
+    menu_sha   = _gh_get("menu.json")["sha"]
+    _gh_put("menu.json", menu_bytes, f"🍖 Bot: {commit_msg}", menu_sha)
 
-
-def _update_html(menu: dict) -> None:
-    with open(HTML_FILE, encoding="utf-8") as f:
-        html = f.read()
-    js_block = _gen_js(menu)
-    new_html = re.sub(
+    html_resp  = _gh_get("index.html")
+    html_bytes = base64.b64decode(html_resp["content"])
+    html       = html_bytes.decode("utf-8")
+    js_block   = _gen_js(menu)
+    new_html   = re.sub(
         r"// ==BEGIN_MENU_DATA==.*?// ==END_MENU_DATA==",
         f"// ==BEGIN_MENU_DATA==\n{js_block}\n// ==END_MENU_DATA==",
         html,
         flags=re.DOTALL,
     )
-    with open(HTML_FILE, "w", encoding="utf-8") as f:
-        f.write(new_html)
+    _gh_put("index.html", new_html.encode("utf-8"), f"🍖 Bot: {commit_msg}", html_resp["sha"])
 
 
 def _gen_js(menu: dict) -> str:
@@ -79,30 +109,31 @@ def _gen_js(menu: dict) -> str:
     return "\n".join(lines)
 
 
-def _git_push(msg: str) -> None:
-    subprocess.run(["git", "add", "menu.json", "index.html", "images/"], cwd=REPO_DIR, check=False)
-    result = subprocess.run(
-        ["git", "commit", "-m", f"🍖 Bot: {msg}"],
-        cwd=REPO_DIR, capture_output=True, text=True
-    )
-    if "nothing to commit" not in result.stdout:
-        subprocess.run(["git", "push"], cwd=REPO_DIR, check=False)
-
-
 # ── Photo helpers ────────────────────────────────────────────────────────────
 def _safe_filename(name: str) -> str:
     return re.sub(r"[^\w\-]", "_", name.lower())
 
 
-async def download_photo(update: Update, item_name: str) -> str:
-    """Download highest-res photo, save to images/, return relative URL path."""
+async def download_and_upload_photo(update: Update, item_name: str) -> str:
+    """Download photo from Telegram, push to GitHub, return relative URL."""
     photo = update.message.photo[-1]
-    file = await photo.get_file()
-    ext = os.path.splitext(file.file_path)[1] or ".jpg"
+    tg_file = await photo.get_file()
+    ext   = os.path.splitext(tg_file.file_path)[1] or ".jpg"
     fname = f"{_safe_filename(item_name)}{ext}"
-    dest  = os.path.join(IMAGES_DIR, fname)
-    await file.download_to_drive(dest)
-    return f"images/{fname}"
+    tmp   = os.path.join(IMAGES_DIR, fname)
+
+    await tg_file.download_to_drive(tmp)
+    with open(tmp, "rb") as f:
+        img_bytes = f.read()
+
+    gh_path = f"images/{fname}"
+    try:
+        existing = _gh_get(gh_path)
+        _gh_put(gh_path, img_bytes, f"🍖 Bot: photo {item_name}", existing["sha"])
+    except requests.HTTPError:
+        _gh_create(gh_path, img_bytes, f"🍖 Bot: photo {item_name}")
+
+    return gh_path
 
 
 # ── Helpers ─────────────────────────────────────────────────────────────────
@@ -259,14 +290,13 @@ async def add_desc(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 async def add_img_photo(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
-    """Handle photo upload during /add."""
     item_name = ctx.user_data["item_name"]
-    img_path  = await download_photo(update, item_name)
+    await update.message.reply_text("⏳ Загружаю фото на GitHub...")
+    img_path = await download_and_upload_photo(update, item_name)
     return await _finish_add(update, ctx, img_path)
 
 
 async def add_img_skip(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
-    """Handle /skip during photo step of /add."""
     return await _finish_add(update, ctx, "")
 
 
@@ -281,7 +311,7 @@ async def _finish_add(update: Update, ctx: ContextTypes.DEFAULT_TYPE, img: str) 
         "img":    img,
     }
     menu["categories"][slug]["items"].append(new_item)
-    await update.message.reply_text("⏳ Сохраняю и пушу на GitHub...")
+    await update.message.reply_text("⏳ Обновляю сайт через GitHub API...")
     save_and_deploy(menu, f"add {new_item['name']}")
     photo_note = f"\nФото: `{img}`" if img else ""
     await update.message.reply_text(
@@ -393,7 +423,7 @@ async def edit_value(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
             return EDIT_VALUE
     menu["categories"][slug]["items"][idx][field] = value
     name = menu["categories"][slug]["items"][idx]["name"]
-    await update.message.reply_text("⏳ Сохраняю и пушу на GitHub...")
+    await update.message.reply_text("⏳ Обновляю сайт через GitHub API...")
     save_and_deploy(menu, f"edit {name} → {field}")
     await update.message.reply_text(
         f"✅ *{name}* обновлено!\nСайт обновится на GitHub Pages через ~1 мин.",
@@ -403,17 +433,16 @@ async def edit_value(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 async def edit_photo(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
-    """Handle new photo upload during /edit."""
     menu = ctx.user_data["menu"]
     slug = ctx.user_data["slug"]
     idx  = ctx.user_data["item_idx"]
     item = menu["categories"][slug]["items"][idx]
 
-    await update.message.reply_text("⏳ Скачиваю фото...")
-    img_path = await download_photo(update, item["name"])
+    await update.message.reply_text("⏳ Загружаю фото на GitHub...")
+    img_path  = await download_and_upload_photo(update, item["name"])
     item["img"] = img_path
 
-    await update.message.reply_text("⏳ Сохраняю и пушу на GitHub...")
+    await update.message.reply_text("⏳ Обновляю сайт через GitHub API...")
     save_and_deploy(menu, f"photo {item['name']}")
     await update.message.reply_text(
         f"✅ Фото для *{item['name']}* обновлено!\n"
@@ -487,7 +516,7 @@ async def del_confirm(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
     slug = ctx.user_data["slug"]
     idx  = ctx.user_data["item_idx"]
     gone = menu["categories"][slug]["items"].pop(idx)
-    await update.message.reply_text("⏳ Сохраняю и пушу на GitHub...")
+    await update.message.reply_text("⏳ Обновляю сайт через GitHub API...")
     save_and_deploy(menu, f"delete {gone['name']}")
     await update.message.reply_text(
         f"✅ *{gone['name']}* удалено!\nСайт обновится на GitHub Pages через ~1 мин.",
@@ -505,6 +534,9 @@ async def cmd_cancel(update: Update, _ctx: ContextTypes.DEFAULT_TYPE) -> int:
 
 # ── Main ─────────────────────────────────────────────────────────────────────
 def main() -> None:
+    if not GITHUB_TOKEN:
+        logging.warning("⚠️  GITHUB_TOKEN не задан — изменения меню не будут сохраняться!")
+
     from telegram.ext import ApplicationBuilder
     app = ApplicationBuilder().token(TOKEN).build()
 
