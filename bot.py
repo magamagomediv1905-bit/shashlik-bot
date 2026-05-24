@@ -505,7 +505,8 @@ async def cmd_cancel(update: Update, _ctx: ContextTypes.DEFAULT_TYPE) -> int:
 
 # ── Main ─────────────────────────────────────────────────────────────────────
 def main() -> None:
-    app = Application.builder().token(TOKEN).build()
+    from telegram.ext import ApplicationBuilder
+    app = ApplicationBuilder().token(TOKEN).build()
 
     app.add_handler(CommandHandler("start", cmd_start))
     app.add_handler(CommandHandler("menu",  cmd_menu))
