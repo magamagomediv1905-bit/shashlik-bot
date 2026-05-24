@@ -23,6 +23,8 @@ ADD_CAT, ADD_NAME, ADD_PRICE, ADD_WEIGHT, ADD_DESC, ADD_IMG = range(1, 7)
 EDIT_CAT, EDIT_ITEM, EDIT_FIELD, EDIT_VALUE, EDIT_PHOTO = range(7, 12)
 DEL_CAT, DEL_ITEM, DEL_CONFIRM = range(12, 15)
 EDITCAT_CAT, EDITCAT_PHOTO = range(15, 17)
+ADDCAT_NAME, ADDCAT_PHOTO = range(17, 19)
+DELETECAT_SELECT, DELETECAT_CONFIRM = range(19, 21)
 
 logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -156,6 +158,16 @@ def slug_by_name(menu: dict, name: str) -> Optional[str]:
     return None
 
 
+def name_to_slug(name: str) -> str:
+    tr = str.maketrans(
+        "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ",
+        "abvgdeyozhziyklmnoprstufhtschshh_y_eyuaABVGDEYOZHZIYKLMNOPRSTUFHTSCHSHH_Y_EYUA"
+    )
+    slug = name.lower().translate(tr)
+    slug = re.sub(r"[^a-z0-9]+", "-", slug).strip("-")
+    return slug or "cat"
+
+
 def items_text(cat: dict) -> str:
     lines = [f'📂 *{cat["name"]}*\n']
     for i, item in enumerate(cat["items"], 1):
@@ -176,6 +188,9 @@ async def cmd_start(update: Update, _ctx: ContextTypes.DEFAULT_TYPE) -> None:
         "/add — добавить блюдо\n"
         "/edit — изменить блюдо\n"
         "/delete — удалить блюдо\n"
+        "/addcat — добавить категорию\n"
+        "/deletecat — удалить категорию\n"
+        "/editcat — изменить фото категории\n"
         "/cancel — отменить",
         parse_mode="Markdown",
     )
@@ -583,6 +598,124 @@ async def editcat_photo(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
     return ConversationHandler.END
 
 
+# ── /addcat ─────────────────────────────────────────────────────────────────
+async def cmd_addcat(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    if not is_owner(update):
+        await update.message.reply_text("У вас нет доступа")
+        return ConversationHandler.END
+    ctx.user_data.clear()
+    await update.message.reply_text(
+        "➕ *Добавить категорию*\n\nВведите название новой категории:",
+        parse_mode="Markdown",
+        reply_markup=ReplyKeyboardRemove(),
+    )
+    return ADDCAT_NAME
+
+
+async def addcat_name(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    name = update.message.text.strip()
+    slug = name_to_slug(name)
+    menu = load_menu()
+    if slug in menu["categories"]:
+        await update.message.reply_text(
+            f"❌ Категория с таким именем уже существует (slug: `{slug}`).\nВведите другое название:",
+            parse_mode="Markdown",
+        )
+        return ADDCAT_NAME
+    ctx.user_data["menu"]     = menu
+    ctx.user_data["cat_name"] = name
+    ctx.user_data["cat_slug"] = slug
+    await update.message.reply_text(
+        f"Название: *{name}*\nSlug: `{slug}`\n\n"
+        "📸 Пришлите фото категории или напишите /skip:",
+        parse_mode="Markdown",
+    )
+    return ADDCAT_PHOTO
+
+
+async def addcat_photo(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    return await _finish_addcat(update, ctx, "")
+
+
+async def addcat_photo_upload(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    await update.message.reply_text("⏳ Загружаю фото на GitHub...")
+    img = await download_and_upload_photo(update, f"cat_{ctx.user_data['cat_slug']}")
+    return await _finish_addcat(update, ctx, img)
+
+
+async def _finish_addcat(update: Update, ctx: ContextTypes.DEFAULT_TYPE, img: str) -> int:
+    menu = ctx.user_data["menu"]
+    name = ctx.user_data["cat_name"]
+    slug = ctx.user_data["cat_slug"]
+    menu["cat_order"].append(slug)
+    menu["categories"][slug] = {"name": name, "img": img, "items": []}
+    await update.message.reply_text("⏳ Обновляю сайт через GitHub API...")
+    save_and_deploy(menu, f"add category {name}")
+    await update.message.reply_text(
+        f"✅ Категория *{name}* добавлена!\n"
+        f"Slug: `{slug}`\n"
+        "Теперь добавляйте блюда через /add.\n"
+        "Сайт обновится через ~1 мин.",
+        parse_mode="Markdown",
+    )
+    return ConversationHandler.END
+
+
+# ── /deletecat ───────────────────────────────────────────────────────────────
+async def cmd_deletecat(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    if not is_owner(update):
+        await update.message.reply_text("У вас нет доступа")
+        return ConversationHandler.END
+    menu = load_menu()
+    ctx.user_data.clear()
+    ctx.user_data["menu"] = menu
+    await update.message.reply_text(
+        "🗑 *Удалить категорию*\n\nВыберите категорию:",
+        parse_mode="Markdown",
+        reply_markup=cat_keyboard(menu),
+    )
+    return DELETECAT_SELECT
+
+
+async def deletecat_select(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    menu = ctx.user_data["menu"]
+    slug = slug_by_name(menu, update.message.text)
+    if not slug:
+        await update.message.reply_text("❌ Не найдена, выберите из списка:")
+        return DELETECAT_SELECT
+    ctx.user_data["slug"] = slug
+    count = len(menu["categories"][slug]["items"])
+    kb = ReplyKeyboardMarkup(
+        [["✅ Да, удалить", "❌ Отмена"]], resize_keyboard=True, one_time_keyboard=True
+    )
+    await update.message.reply_text(
+        f"Удалить категорию *{update.message.text}*?\n"
+        f"Вместе с ней будет удалено *{count} блюд*.",
+        parse_mode="Markdown",
+        reply_markup=kb,
+    )
+    return DELETECAT_CONFIRM
+
+
+async def deletecat_confirm(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    if "Отмена" in update.message.text or "❌" in update.message.text:
+        await update.message.reply_text("Отменено.", reply_markup=ReplyKeyboardRemove())
+        return ConversationHandler.END
+    menu = ctx.user_data["menu"]
+    slug = ctx.user_data["slug"]
+    name = menu["categories"][slug]["name"]
+    menu["cat_order"].remove(slug)
+    del menu["categories"][slug]
+    await update.message.reply_text("⏳ Обновляю сайт через GitHub API...")
+    save_and_deploy(menu, f"delete category {name}")
+    await update.message.reply_text(
+        f"✅ Категория *{name}* удалена!\nСайт обновится через ~1 мин.",
+        parse_mode="Markdown",
+        reply_markup=ReplyKeyboardRemove(),
+    )
+    return ConversationHandler.END
+
+
 # ── /cancel ─────────────────────────────────────────────────────────────────
 async def cmd_cancel(update: Update, _ctx: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text("Отменено.", reply_markup=ReplyKeyboardRemove())
@@ -645,6 +778,25 @@ def main() -> None:
         states={
             EDITCAT_CAT:   [MessageHandler(filters.TEXT & ~filters.COMMAND, editcat_select)],
             EDITCAT_PHOTO: [MessageHandler(filters.PHOTO, editcat_photo)],
+        },
+        fallbacks=[CommandHandler("cancel", cmd_cancel)],
+    ))
+    app.add_handler(ConversationHandler(
+        entry_points=[CommandHandler("addcat", cmd_addcat)],
+        states={
+            ADDCAT_NAME:  [MessageHandler(filters.TEXT & ~filters.COMMAND, addcat_name)],
+            ADDCAT_PHOTO: [
+                MessageHandler(filters.PHOTO, addcat_photo_upload),
+                MessageHandler(filters.Regex(r"^/skip$"), addcat_photo),
+            ],
+        },
+        fallbacks=[CommandHandler("cancel", cmd_cancel)],
+    ))
+    app.add_handler(ConversationHandler(
+        entry_points=[CommandHandler("deletecat", cmd_deletecat)],
+        states={
+            DELETECAT_SELECT:  [MessageHandler(filters.TEXT & ~filters.COMMAND, deletecat_select)],
+            DELETECAT_CONFIRM: [MessageHandler(filters.TEXT & ~filters.COMMAND, deletecat_confirm)],
         },
         fallbacks=[CommandHandler("cancel", cmd_cancel)],
     ))
