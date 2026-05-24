@@ -10,7 +10,7 @@ from telegram.ext import (
 
 # ── Config ─────────────────────────────────────────────────────────────────
 TOKEN        = "8624425261:AAE-mQuwzQU2lOC_81ScsuK_Ve2hwnwFk6o"
-OWNER_ID     = 8701112729
+ADMIN_IDS    = [8701112729, 7956675065]
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
 GITHUB_REPO  = "magamagomediv1905-bit/shashlik-centr"
 IMAGES_DIR   = "/tmp/shashlik_images"
@@ -138,7 +138,7 @@ async def download_and_upload_photo(update: Update, item_name: str) -> str:
 
 # ── Helpers ─────────────────────────────────────────────────────────────────
 def is_owner(update: Update) -> bool:
-    return update.effective_user.id == OWNER_ID
+    return update.effective_user.id in ADMIN_IDS
 
 
 def cat_keyboard(menu: dict) -> ReplyKeyboardMarkup:
