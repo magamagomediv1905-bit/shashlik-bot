@@ -1,0 +1,433 @@
+{
+  "cat_order": [
+    "lulya-kebab",
+    "svinina",
+    "baranina",
+    "gavyadina",
+    "kurica",
+    "riba",
+    "ovoshi",
+    "kartoshka-na-uglyax",
+    "shaurma-na-uglyax",
+    "saladi",
+    "sousi",
+    "xolodniye-zakuski",
+    "hleb",
+    "napitki",
+    "pivo-razlivnoe"
+  ],
+  "categories": {
+    "lulya-kebab": {
+      "name": "Люля-кебаб",
+      "img": "https://web.archive.org/web/20250518061314im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/photo_2021-04-16_01-03-14.jpg",
+      "items": [
+        {
+          "name": "Люля кебаб из баранины",
+          "price": 400,
+          "weight": "100г",
+          "desc": "Сочный люля-кебаб из рубленой баранины, приготовленный на открытом огне по традиционному рецепту.",
+          "img": "images/люля_кебаб_из_баранины.jpg"
+        },
+        {
+          "name": "Люля кебаб из говядины",
+          "price": 350,
+          "weight": "200г",
+          "desc": "Нежный люля-кебаб из говяжьего фарша с луком и зеленью на углях.",
+          "img": "images/люля_кебаб_из_говядины.jpg"
+        },
+        {
+          "name": "Люля кебаб куриный",
+          "price": 300,
+          "weight": "200г",
+          "desc": "Лёгкий и ароматный люля-кебаб из куриного фарша с грибами.",
+          "img": "images/люля_кебаб_куриный.jpg"
+        }
+      ]
+    },
+    "svinina": {
+      "name": "Свинина",
+      "img": "https://web.archive.org/web/20250518061314im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/l43b6618.jpg",
+      "items": [
+        {
+          "name": "Свинина корейка",
+          "price": 150,
+          "weight": "100г",
+          "desc": "Шашлык из свиной корейки — один из самых популярных. Нежная часть свинины на мангале.",
+          "img": "https://web.archive.org/web/20250425092507im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/1548112393857922-d9b3.jpg"
+        },
+        {
+          "name": "Свинина мякоть",
+          "price": 380,
+          "weight": "250г",
+          "desc": "Шашлык из свиной мякоти с маринадом — сочно и ароматно.",
+          "img": "images/свинина_мякоть.jpg"
+        },
+        {
+          "name": "Свинина ребра",
+          "price": 350,
+          "weight": "250г",
+          "desc": "Сочные свиные рёбрышки, запечённые на углях до золотистой корочки.",
+          "img": "https://web.archive.org/web/20250425092507im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/rebryshki-v-sibirskom-marinade2-2250.jpg"
+        },
+        {
+          "name": "Свинина шейка",
+          "price": 420,
+          "weight": "250г",
+          "desc": "Шашлык из свиной шейки — самое нежное и сочное мясо для мангала.",
+          "img": "images/свинина_шейка.jpg"
+        }
+      ]
+    },
+    "baranina": {
+      "name": "Баранина",
+      "img": "https://web.archive.org/web/20250518061314im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/5662c97de6e00bac3698c059014dc24b.jpg",
+      "items": [
+        {
+          "name": "Баранина мякоть",
+          "price": 250,
+          "weight": "100г",
+          "desc": "Нежная баранина, замаринованная по кавказскому рецепту и приготовленная на углях.",
+          "img": "images/баранина_мякоть.jpg"
+        },
+        {
+          "name": "Баранина на корейке",
+          "price": 230,
+          "weight": "100г",
+          "desc": "Баранья корейка на кости — ароматная и сочная, с хрустящей корочкой.",
+          "img": "images/баранина_на_корейке.jpg"
+        }
+      ]
+    },
+    "gavyadina": {
+      "name": "Говядина",
+      "img": "https://web.archive.org/web/20250518061314im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/govjadina-vyrezka.jpg",
+      "items": [
+        {
+          "name": "Говядина вырезка",
+          "price": 450,
+          "weight": "250г",
+          "desc": "Нежная говяжья вырезка на углях — классика мангала с насыщенным вкусом.",
+          "img": "https://web.archive.org/web/20250518061314im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/govjadina-vyrezka.jpg"
+        },
+        {
+          "name": "Говядина антрекот",
+          "price": 400,
+          "weight": "250г",
+          "desc": "Говяжий антрекот с пряными травами, сочный внутри и с корочкой снаружи.",
+          "img": "https://web.archive.org/web/20250518061314im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/govjadina-vyrezka.jpg"
+        }
+      ]
+    },
+    "kurica": {
+      "name": "Курица",
+      "img": "https://web.archive.org/web/20250518061314im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/cyplenok-na-mangale-130-grn-1sht.jpeg",
+      "items": [
+        {
+          "name": "Куриное филе",
+          "price": 350,
+          "weight": "200г",
+          "desc": "Диетическое куриное филе на вертеле, маринованное в соевом соусе с лимоном.",
+          "img": "images/куриное_филе.jpg"
+        },
+        {
+          "name": "Куриные крылышки",
+          "price": 60,
+          "weight": "100г",
+          "desc": "Сочные куриные крылья в пряном маринаде, приготовленные на открытом огне.",
+          "img": "images/куриные_крылышки.jpg"
+        },
+        {
+          "name": "Цыплёнок 1 шт.",
+          "price": 430,
+          "weight": "400г",
+          "desc": "Цыплёнок целиком на мангале — ароматный, с хрустящей кожицей.",
+          "img": "images/цыплёнок_1_шт_.jpg"
+        }
+      ]
+    },
+    "riba": {
+      "name": "Рыба",
+      "img": "https://web.archive.org/web/20250518061314im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/dorado-on-the-grill-wallpaper-for-pc.jpg",
+      "items": [
+        {
+          "name": "Рыба Дорадо",
+          "price": 500,
+          "weight": "300г",
+          "desc": "Свежая дорадо на гриле с лимоном и зеленью — нежная средиземноморская рыба.",
+          "img": "images/рыба_дорадо.jpg"
+        },
+        {
+          "name": "Рыба Сибас",
+          "price": 500,
+          "weight": "300г",
+          "desc": "Сибас на углях — изысканная морская рыба с тонким вкусом.",
+          "img": "images/рыба_сибас.jpg"
+        },
+        {
+          "name": "Рыба форель",
+          "price": 500,
+          "weight": "300г",
+          "desc": "Форель на мангале — нежная красная рыба с дымком.",
+          "img": "images/рыба_форель.jpg"
+        }
+      ]
+    },
+    "ovoshi": {
+      "name": "Овощи",
+      "img": "https://web.archive.org/web/20250518061314im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/ovoshhi.jpg",
+      "items": [
+        {
+          "name": "Овощной шашлык",
+          "price": 420,
+          "weight": "300г",
+          "desc": "Ассорти сезонных овощей на гриле — перец, баклажан, цукини, помидоры.",
+          "img": "images/овощной_шашлык.jpg"
+        },
+        {
+          "name": "Шампиньоны",
+          "price": 200,
+          "weight": "150г",
+          "desc": "Сочные шампиньоны на решётке с ароматными травами.",
+          "img": "images/шампиньоны.jpg"
+        }
+      ]
+    },
+    "kartoshka-na-uglyax": {
+      "name": "Картошка на углях",
+      "img": "https://web.archive.org/web/20250518061314im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/kartofel-na-vertele-100gr1.jpeg",
+      "items": [
+        {
+          "name": "Картофель на мангале",
+          "price": 200,
+          "weight": "250г",
+          "desc": "Картофель в мундире, запечённый на углях — с хрустящей корочкой и нежной серединкой.",
+          "img": "images/картофель_на_мангале.jpg"
+        },
+        {
+          "name": "Картофель с курдюком",
+          "price": 250,
+          "weight": "250г",
+          "desc": "Картошка на мангале с кусочками курдючного жира — сочная и ароматная.",
+          "img": "https://web.archive.org/web/20250425092507im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/product-mangal-kartofel-s-kyrdukom.jpg"
+        }
+      ]
+    },
+    "shaurma-na-uglyax": {
+      "name": "Шаурма на углях",
+      "img": "https://web.archive.org/web/20250518061314im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/1776555016.jpg",
+      "items": [
+        {
+          "name": "Шаурма на углях (курица)",
+          "price": 250,
+          "weight": "350г",
+          "desc": "Шаурма с куриным мясом, свежими овощами и фирменным соусом, завёрнутая в лаваш.",
+          "img": "images/шаурма_на_углях__курица_.jpg"
+        },
+        {
+          "name": "Шаурма на углях (свинина)",
+          "price": 300,
+          "weight": "350г",
+          "desc": "Сочная шаурма со свининой, хрустящими овощами и белым соусом.",
+          "img": "images/шаурма_на_углях__свинина_.jpg"
+        },
+        {
+          "name": "Шаурма на углях (баранина)",
+          "price": 350,
+          "weight": "350г",
+          "desc": "Классическая восточная шаурма с бараниной и пряным соусом.",
+          "img": "images/шаурма_на_углях__баранина_.jpg"
+        }
+      ]
+    },
+    "saladi": {
+      "name": "Салаты",
+      "img": "https://web.archive.org/web/20250518061314im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/ovoschi-salat-pomidory.jpg",
+      "items": [
+        {
+          "name": "Овощной салат",
+          "price": 250,
+          "weight": "250г",
+          "desc": "Свежий овощной салат из помидоров, огурцов и зелени.",
+          "img": "images/овощной_салат.jpg"
+        }
+      ]
+    },
+    "sousi": {
+      "name": "Соусы",
+      "img": "https://web.archive.org/web/20250518061314im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/ovoschi-salat-pomidory.jpg",
+      "items": [
+        {
+          "name": "Соус белый",
+          "price": 50,
+          "weight": "130г",
+          "desc": "Нежный чесночный белый соус к мясу и лавашу.",
+          "img": "images/соус_белый.jpg"
+        },
+        {
+          "name": "Соус красный шашлычный",
+          "price": 50,
+          "weight": "130г",
+          "desc": "Пряный томатный соус с зеленью и специями.",
+          "img": "images/соус_красный_шашлычный.jpg"
+        }
+      ]
+    },
+    "xolodniye-zakuski": {
+      "name": "Холодные закуски",
+      "img": "https://web.archive.org/web/20250518061314im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/kolbasa-syr-olivki-inzhir-miaso.jpg",
+      "items": [
+        {
+          "name": "Нарезка мясная",
+          "price": 350,
+          "weight": "200г",
+          "desc": "Ассорти из мясной нарезки с сыром, оливками и зеленью.",
+          "img": "https://web.archive.org/web/20250518061314im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/kolbasa-syr-olivki-inzhir-miaso.jpg"
+        },
+        {
+          "name": "Сырная тарелка",
+          "price": 300,
+          "weight": "150г",
+          "desc": "Ассорти из нескольких сортов сыра с фруктами и орехами.",
+          "img": "https://web.archive.org/web/20250518061314im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/09abe4b865840cfda96a8ab885b0a7fe.jpg"
+        }
+      ]
+    },
+    "hleb": {
+      "name": "Хлеб из тандыра",
+      "img": "https://web.archive.org/web/20250518061314im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/1027119-1.jpg",
+      "items": [
+        {
+          "name": "Лаваш",
+          "price": 50,
+          "weight": "100г",
+          "desc": "Тонкий лаваш из тандыра — идеальное дополнение к шашлыку.",
+          "img": "images/лаваш.jpg"
+        },
+        {
+          "name": "Лепешка",
+          "price": 100,
+          "weight": "100",
+          "desc": "Свежая лепешка из тандыра",
+          "img": "images/лепешка.jpg"
+        }
+      ]
+    },
+    "napitki": {
+      "name": "Напитки",
+      "img": "https://web.archive.org/web/20250518061314im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/bez-nazvanija-1.jpg",
+      "items": [
+        {
+          "name": "Вода без газа Бонаква 0.5л",
+          "price": 50,
+          "weight": "500мл",
+          "desc": "Негазированная питьевая вода Бонаква, 0.5л.",
+          "img": "https://web.archive.org/web/20250425092507im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/bon-akva-.jpg"
+        },
+        {
+          "name": "Вода без газа Святой источник 0.5л",
+          "price": 50,
+          "weight": "500мл",
+          "desc": "Природная питьевая вода Святой источник, 0.5л.",
+          "img": "https://web.archive.org/web/20250425092507im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/de6hj1ox0aewkbs.jpg-large.jpg"
+        },
+        {
+          "name": "Кока-Кола 0.33л",
+          "price": 80,
+          "weight": "330мл",
+          "desc": "Классическая Кока-Кола, 0.33л.",
+          "img": "https://web.archive.org/web/20250425092507im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/91a1fb87-cfc7-4abc-a833-1e0655f87068_rw_3840-scaled.jpg"
+        },
+        {
+          "name": "Кока-Кола 0.5л",
+          "price": 100,
+          "weight": "500мл",
+          "desc": "Классическая Кока-Кола, 0.5л.",
+          "img": "https://web.archive.org/web/20250425092507im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/548270-coca-cola.jpg"
+        },
+        {
+          "name": "Кока-Кола 1л",
+          "price": 130,
+          "weight": "1л",
+          "desc": "Классическая Кока-Кола, 1л.",
+          "img": "https://web.archive.org/web/20250425092507im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/coca-cola-koka-kola-butylka-2859.jpg"
+        },
+        {
+          "name": "Фанта 0.33л",
+          "price": 80,
+          "weight": "330мл",
+          "desc": "Газированный напиток Фанта апельсин, 0.33л.",
+          "img": "https://web.archive.org/web/20250425092507im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/593addbceb746.jpg"
+        },
+        {
+          "name": "Фанта 0.5л",
+          "price": 100,
+          "weight": "500мл",
+          "desc": "Газированный напиток Фанта апельсин, 0.5л.",
+          "img": "https://web.archive.org/web/20250425092507im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/11766409_1920.jpg"
+        },
+        {
+          "name": "Лимонад Сан-Славиа",
+          "price": 60,
+          "weight": "500мл",
+          "desc": "Домашний лимонад Сан-Славиа в ассортименте.",
+          "img": "https://web.archive.org/web/20250425092507im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/san-slavija-1024x792-1.jpg"
+        },
+        {
+          "name": "Минеральная вода Боржоми",
+          "price": 110,
+          "weight": "500мл",
+          "desc": "Грузинская минеральная вода Боржоми, 0.5л.",
+          "img": "https://web.archive.org/web/20250425092507im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/mg-7425.jpg"
+        },
+        {
+          "name": "Минеральная вода Джермук",
+          "price": 80,
+          "weight": "500мл",
+          "desc": "Армянская минеральная вода Джермук, 0.5л.",
+          "img": "https://web.archive.org/web/20250425092507im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/img_8259-1.jpg"
+        },
+        {
+          "name": "Минеральная вода Святой источник",
+          "price": 50,
+          "weight": "500мл",
+          "desc": "Природная минеральная вода Святой источник, 0.5л.",
+          "img": "https://web.archive.org/web/20250425092507im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/43311389154313681103.png"
+        },
+        {
+          "name": "Сок Добрый в ассортименте",
+          "price": 55,
+          "weight": "200мл",
+          "desc": "Сок Добрый: яблоко, апельсин, мультифрукт.",
+          "img": "https://web.archive.org/web/20250425092507im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/5b3c5d8b7f4d884d9741caf2_5b3c60a495690.jpg"
+        },
+        {
+          "name": "Компот в ассортименте 1л",
+          "price": 170,
+          "weight": "1л",
+          "desc": "Компот из натуральных фруктов на весь день.",
+          "img": "https://web.archive.org/web/20250425092507im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/kompot-v-asortimente-1l_f.png"
+        }
+      ]
+    },
+    "pivo-razlivnoe": {
+      "name": "Пиво разливное",
+      "img": "https://web.archive.org/web/20250518061314im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/bez-nazvanija-1.jpg",
+      "items": [
+        {
+          "name": "Балтика 7 (разливное)",
+          "price": 100,
+          "weight": "500мл",
+          "desc": "Светлое разливное пиво Балтика 7, 0.5л.",
+          "img": "https://web.archive.org/web/20250425092507im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/baltika7.jpg"
+        },
+        {
+          "name": "Козёл тёмное (разливное)",
+          "price": 100,
+          "weight": "500мл",
+          "desc": "Тёмное разливное пиво Козёл, 0.5л.",
+          "img": "https://web.archive.org/web/20250425092507im_/https://shashlikcentr.ru/wp-content/uploads/2021/04/dde706bac3a140bcaa68bfcf3aa850da.jpg"
+        }
+      ]
+    }
+  }
+}
