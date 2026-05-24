@@ -9,7 +9,7 @@ from telegram.ext import (
 )
 
 # ── Config ─────────────────────────────────────────────────────────────────
-TOKEN        = "8624425261:AAE-mQuwzQU2lOC_81ScsuK_Ve2hwnwFk6o"
+TOKEN        = "8624425261:AAFjxL9XKVep5XYtd-pDwww4RxqcdhWDQZE"
 ADMIN_IDS    = [8701112729, 7956675065]
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
 GITHUB_REPO  = "magamagomediv1905-bit/shashlik-centr"
