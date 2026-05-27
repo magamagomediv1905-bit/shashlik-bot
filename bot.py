@@ -168,6 +168,13 @@ def name_to_slug(name: str) -> str:
     return slug or "cat"
 
 
+async def _expired(update: Update, cmd: str) -> None:
+    await update.message.reply_text(
+        f"⚠️ Сессия истекла — бот перезапустился. Начни заново: /{cmd}",
+        reply_markup=ReplyKeyboardRemove(),
+    )
+
+
 def items_text(cat: dict) -> str:
     lines = [f'📂 *{cat["name"]}*\n']
     for i, item in enumerate(cat["items"], 1):
@@ -230,6 +237,8 @@ async def cmd_list(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 async def list_select_cat(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    if "menu" not in ctx.user_data:
+        await _expired(update, "list"); return ConversationHandler.END
     menu = ctx.user_data["menu"]
     slug = slug_by_name(menu, update.message.text)
     rm   = ReplyKeyboardRemove()
@@ -259,6 +268,8 @@ async def cmd_add(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 async def add_cat(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    if "menu" not in ctx.user_data:
+        await _expired(update, "add"); return ConversationHandler.END
     menu = ctx.user_data["menu"]
     slug = slug_by_name(menu, update.message.text)
     if not slug:
@@ -308,6 +319,8 @@ async def add_desc(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 async def add_img_photo(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    if "menu" not in ctx.user_data:
+        await _expired(update, "add"); return ConversationHandler.END
     item_name = ctx.user_data["item_name"]
     await update.message.reply_text("⏳ Загружаю фото на GitHub...")
     img_path = await download_and_upload_photo(update, item_name)
@@ -315,6 +328,8 @@ async def add_img_photo(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 async def add_img_skip(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    if "menu" not in ctx.user_data:
+        await _expired(update, "add"); return ConversationHandler.END
     return await _finish_add(update, ctx, "")
 
 
@@ -357,6 +372,8 @@ async def cmd_edit(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 async def edit_cat(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    if "menu" not in ctx.user_data:
+        await _expired(update, "edit"); return ConversationHandler.END
     menu = ctx.user_data["menu"]
     slug = slug_by_name(menu, update.message.text)
     if not slug:
@@ -372,6 +389,8 @@ async def edit_cat(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 async def edit_item(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    if "menu" not in ctx.user_data:
+        await _expired(update, "edit"); return ConversationHandler.END
     menu  = ctx.user_data["menu"]
     slug  = ctx.user_data["slug"]
     items = menu["categories"][slug]["items"]
@@ -394,6 +413,8 @@ async def edit_item(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 async def edit_field(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    if "menu" not in ctx.user_data:
+        await _expired(update, "edit"); return ConversationHandler.END
     text = update.message.text
 
     if text == "Изменить фото":
@@ -428,6 +449,8 @@ async def edit_field(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 async def edit_value(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    if "menu" not in ctx.user_data:
+        await _expired(update, "edit"); return ConversationHandler.END
     menu  = ctx.user_data["menu"]
     slug  = ctx.user_data["slug"]
     idx   = ctx.user_data["item_idx"]
@@ -451,6 +474,8 @@ async def edit_value(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 async def edit_photo(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    if "menu" not in ctx.user_data:
+        await _expired(update, "edit"); return ConversationHandler.END
     menu = ctx.user_data["menu"]
     slug = ctx.user_data["slug"]
     idx  = ctx.user_data["item_idx"]
@@ -488,6 +513,8 @@ async def cmd_delete(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 async def del_cat(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    if "menu" not in ctx.user_data:
+        await _expired(update, "delete"); return ConversationHandler.END
     menu = ctx.user_data["menu"]
     slug = slug_by_name(menu, update.message.text)
     if not slug:
@@ -503,6 +530,8 @@ async def del_cat(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 async def del_item(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    if "menu" not in ctx.user_data:
+        await _expired(update, "delete"); return ConversationHandler.END
     menu  = ctx.user_data["menu"]
     slug  = ctx.user_data["slug"]
     items = menu["categories"][slug]["items"]
@@ -527,6 +556,8 @@ async def del_item(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 async def del_confirm(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    if "menu" not in ctx.user_data:
+        await _expired(update, "delete"); return ConversationHandler.END
     if "Отмена" in update.message.text or "❌" in update.message.text:
         await update.message.reply_text("Отменено.", reply_markup=ReplyKeyboardRemove())
         return ConversationHandler.END
@@ -561,6 +592,8 @@ async def cmd_editcat(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 async def editcat_select(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    if "menu" not in ctx.user_data:
+        await _expired(update, "editcat"); return ConversationHandler.END
     menu = ctx.user_data["menu"]
     slug = slug_by_name(menu, update.message.text)
     if not slug:
@@ -579,6 +612,8 @@ async def editcat_select(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 async def editcat_photo(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    if "menu" not in ctx.user_data:
+        await _expired(update, "editcat"); return ConversationHandler.END
     menu = ctx.user_data["menu"]
     slug = ctx.user_data["slug"]
     cat  = menu["categories"][slug]
@@ -634,10 +669,14 @@ async def addcat_name(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 async def addcat_photo(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    if "menu" not in ctx.user_data:
+        await _expired(update, "addcat"); return ConversationHandler.END
     return await _finish_addcat(update, ctx, "")
 
 
 async def addcat_photo_upload(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    if "menu" not in ctx.user_data:
+        await _expired(update, "addcat"); return ConversationHandler.END
     await update.message.reply_text("⏳ Загружаю фото на GitHub...")
     img = await download_and_upload_photo(update, f"cat_{ctx.user_data['cat_slug']}")
     return await _finish_addcat(update, ctx, img)
@@ -678,6 +717,8 @@ async def cmd_deletecat(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 async def deletecat_select(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    if "menu" not in ctx.user_data:
+        await _expired(update, "deletecat"); return ConversationHandler.END
     menu = ctx.user_data["menu"]
     slug = slug_by_name(menu, update.message.text)
     if not slug:
@@ -698,6 +739,8 @@ async def deletecat_select(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> in
 
 
 async def deletecat_confirm(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> int:
+    if "menu" not in ctx.user_data:
+        await _expired(update, "deletecat"); return ConversationHandler.END
     if "Отмена" in update.message.text or "❌" in update.message.text:
         await update.message.reply_text("Отменено.", reply_markup=ReplyKeyboardRemove())
         return ConversationHandler.END
